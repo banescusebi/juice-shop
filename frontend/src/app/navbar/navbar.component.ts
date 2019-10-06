@@ -2,12 +2,13 @@ import { ChallengeService } from '../Services/challenge.service'
 import { UserService } from '../Services/user.service'
 import { AdministrationService } from '../Services/administration.service'
 import { ConfigurationService } from '../Services/configuration.service'
-import { Component, NgZone, OnInit, EventEmitter, Output } from '@angular/core'
+import { Component, NgZone, OnInit, EventEmitter, Output, SecurityContext } from '@angular/core'
 import { CookieService } from 'ngx-cookie'
 import { TranslateService } from '@ngx-translate/core'
 import { Router } from '@angular/router'
 import { SocketIoService } from '../Services/socket-io.service'
 import { LanguagesService } from '../Services/languages.service'
+import { DomSanitizer } from '@angular/platform-browser'
 
 import {
   faBomb,
@@ -59,7 +60,8 @@ export class NavbarComponent implements OnInit {
 
   constructor (private administrationService: AdministrationService, private challengeService: ChallengeService,
     private configurationService: ConfigurationService, private userService: UserService, private ngZone: NgZone,
-    private cookieService: CookieService, private router: Router, private translate: TranslateService, private io: SocketIoService, private langService: LanguagesService, private adminGuard: AdminGuard) { }
+    private cookieService: CookieService, private router: Router, private translate: TranslateService, private io: SocketIoService, 
+    private langService: LanguagesService, private adminGuard: AdminGuard, private sanitizer: DomSanitizer) { }
 
   ngOnInit () {
     this.getLanguages()
@@ -127,7 +129,8 @@ export class NavbarComponent implements OnInit {
 
   search (value: string) {
     if (value) {
-      const queryParams = { queryParams: { q: value } }
+      var sanitizedValue:string = this.sanitizer.sanitize(SecurityContext.HTML, value);
+      const queryParams = { queryParams: { q: sanitizedValue } }
       this.router.navigate(['/search'], queryParams)
     } else {
       this.router.navigate(['/search'])
